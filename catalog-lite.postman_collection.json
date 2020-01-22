@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "dd896517-5c46-41d2-bf23-f7ff933b1f23",
+		"name": "catalog-lite",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "0.0.0.0:3000/api/ping",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "firms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "0.0.0.0:3000/api/firms?filter={\"in_radius\": 2000, \"rubric_id\":null, \"building_id\":null}",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"firms"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "40",
+							"disabled": true
+						},
+						{
+							"key": "count",
+							"value": "50",
+							"disabled": true
+						},
+						{
+							"key": "filter",
+							"value": "{\"building_id\":20,\"rubric_id\":1,\"in_radius\":{\"point\":{\"long\":167.561104,\"lat\":71.509529},\"radius\":1000}}",
+							"disabled": true
+						},
+						{
+							"key": "filter",
+							"value": "{\"building_id\":519,\"rubric_id\":null}",
+							"disabled": true
+						},
+						{
+							"key": "filter",
+							"value": "{\"building_id\":null,\"rubric_id\":1}",
+							"disabled": true
+						},
+						{
+							"key": "filter",
+							"value": "{\"in_radius\": 2000, \"rubric_id\":null, \"building_id\":null}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "firms/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "0.0.0.0:3000/api/firms/1",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"firms",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buildings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "0.0.0.0:3000/api/buildings?page=20000&count=2",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"buildings"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "20000"
+						},
+						{
+							"key": "count",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

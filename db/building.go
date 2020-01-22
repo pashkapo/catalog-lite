@@ -1,6 +1,7 @@
 package db
 
 import (
+	sq "github.com/Masterminds/squirrel"
 	"github.com/pashkapo/catalog-lite/core"
 	"github.com/pashkapo/catalog-lite/models"
 )
@@ -15,7 +16,16 @@ func (db *Database) GetBuildings(page, count int) ([]*models.Building, error) {
 
 	offset := count * (page - 1)
 
-	rows, err := db.Query("SELECT id, country, city, street, house FROM buildings ORDER BY id OFFSET $1 LIMIT $2", offset, count)
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	firmsQuery := psql.Select("b.id, b.country, b.city, b.street, b.house, b.location[0], b.location[1]").
+		From("buildings b").
+		OrderBy("id").
+		Offset(uint64(offset)).
+		Limit(uint64(count))
+
+	sql, args, err := firmsQuery.ToSql()
+
+	rows, err := db.Query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +34,7 @@ func (db *Database) GetBuildings(page, count int) ([]*models.Building, error) {
 	buildings := make([]*models.Building, 0)
 	for rows.Next() {
 		building := new(models.Building)
-		err := rows.Scan(&building.Id, &building.Country, &building.City, &building.Street, &building.House)
+		err := rows.Scan(&building.Id, &building.Country, &building.City, &building.Street, &building.House, &building.Location.Long, &building.Location.Lat)
 		if err != nil {
 			return nil, err
 		}

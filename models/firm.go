@@ -1,14 +1,18 @@
 package models
 
 type Firm struct {
-	Id         uint   `json:"id"`
-	Name       string `json:"name"`
-	BuildingId uint   `json:"building_id"`
-	//Building Building `json:"building"`
+	Id           uint      `json:"id"`
+	Name         string    `json:"name"`
+	PhoneNumbers []string  `json:"phone_numbers,omitempty"`
+	Building     Building  `json:"building"`
+	Rubrics      []*Rubric `json:"rubrics,omitempty"`
 }
 
 type FirmFilter struct {
 	BuildingId uint `json:"building_id"`
 	RubricId   uint `json:"rubric_id"`
-	InRadius   uint `json:"in_radius"`
+	InRadius   struct {
+		Radius uint     `json:"radius"`
+		Point  Location `json:"point"`
+	} `json:"in_radius"`
 }

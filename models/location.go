@@ -1,5 +1,6 @@
 package models
 
 type Location struct {
-	long, lat float32
+	Long float32 `json:"long"`
+	Lat  float32 `json:"lat"`
 }
