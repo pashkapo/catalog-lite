@@ -18,7 +18,7 @@ func (db *Database) GetFirms(page, count int, filter models.FirmFilter) ([]*mode
 	offset := count * (page - 1)
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	firmsQuery := psql.Select("f.*").From("firms f").OrderBy("id").Offset(uint64(offset)).Limit(uint64(count))
+	firmsQuery := psql.Select("f.*").From("firms f").Offset(uint64(offset)).Limit(uint64(count))
 
 	if filter.BuildingId != 0 {
 		firmsQuery = firmsQuery.Where(sq.Eq{"building_id": filter.BuildingId})
