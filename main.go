@@ -1,54 +1,69 @@
 package main
 
 import (
-	"database/sql"
+	"encoding/json"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
-	"gitlab.com/pashkapo/gis_catalog/models"
+	"github.com/pashkapo/catalog-lite/core"
+	"github.com/pashkapo/catalog-lite/db"
+	"github.com/pashkapo/catalog-lite/models"
 	"net/http"
-	"os"
+	"strconv"
 )
 
-func init() {
-	_ = os.Setenv("PORT", "3000")
-	_ = os.Setenv("DATABASE_URL", "postgresql://postgres:postgres@0.0.0.0:5432/catalog-lite?sslmode=disable")
-}
-
 func main() {
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	config := core.NewConfig()
+
+	database, err := db.New(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := db.Ping(); err != nil {
-		log.Fatalf("could not ping DB... %v", err)
-	}
-
 	e := echo.New()
-	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	g := e.Group("/api")
+
 	g.GET("/ping", func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
-	g.GET("/firms", getFirms)
 
-	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
-}
+	// @toDo вынести
+	g.GET("/firms", func(c echo.Context) error {
+		page, _ := strconv.Atoi(c.QueryParam("page"))
+		count, _ := strconv.Atoi(c.QueryParam("count"))
+		filter := models.FirmFilter{BuildingId: 0}
+		err := json.Unmarshal([]byte(c.QueryParam("filter")), &filter)
 
-func getFirms(c echo.Context) error {
-	firms := &models.Firms{
-		models.Firm{
-			Id:   1,
-			Name: "1gis",
-		},
-		models.Firm{
-			Id:   2,
-			Name: "2gis",
-		},
-	}
-	return c.JSON(http.StatusOK, firms)
+		firms, err := database.GetFirms(page, count, filter)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
+		}
+		return c.JSON(http.StatusOK, firms)
+	})
+
+	g.GET("/firms/:id", func(c echo.Context) error {
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		firm, err := database.GetFirmById(uint(id))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
+		}
+		return c.JSON(http.StatusOK, firm)
+	})
+
+	g.GET("/buildings", func(c echo.Context) error {
+		page, _ := strconv.Atoi(c.QueryParam("page"))
+		count, _ := strconv.Atoi(c.QueryParam("count"))
+
+		firms, err := database.GetBuildings(page, count)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
+		}
+		return c.JSON(http.StatusOK, firms)
+	})
+
+	e.Logger.Fatal(e.Start(":" + config.AppPort))
 }

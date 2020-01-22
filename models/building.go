@@ -1,7 +1,10 @@
 package models
 
 type Building struct {
-	Id       int    `json:"id"`
-	Address  string `json:"address"`
-	Location Point  `json:"location"`
+	Id       int      `json:"id"`
+	Country  string   `json:"country"`
+	City     string   `json:"city"`
+	Street   string   `json:"street"`
+	House    string   `json:"house"`
+	Location Location `json:"location"`
 }
