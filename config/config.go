@@ -1,4 +1,4 @@
-package core
+package config
 
 import (
 	"os"
@@ -13,7 +13,7 @@ type Config struct {
 	DBPass  string
 }
 
-func NewConfig() *Config {
+func New() *Config {
 	return &Config{
 		AppPort: getEnv("PORT", "3000"),
 		DBHost:  getEnv("DB_HOST", "0.0.0.0:5432"),

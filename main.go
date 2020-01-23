@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
-	"github.com/pashkapo/catalog-lite/core"
+	"github.com/pashkapo/catalog-lite/config"
 	"github.com/pashkapo/catalog-lite/db"
 	"github.com/pashkapo/catalog-lite/models"
 	"net/http"
@@ -14,9 +14,9 @@ import (
 )
 
 func main() {
-	config := core.NewConfig()
+	conf := config.New()
 
-	database, err := db.New(config)
+	database, err := db.New(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,5 +65,5 @@ func main() {
 		return c.JSON(http.StatusOK, firms)
 	})
 
-	e.Logger.Fatal(e.Start(":" + config.AppPort))
+	e.Logger.Fatal(e.Start(":" + conf.AppPort))
 }

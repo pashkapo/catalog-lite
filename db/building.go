@@ -8,10 +8,10 @@ import (
 
 func (db *Database) GetBuildings(page, count int) ([]*models.Building, error) {
 	if page == 0 {
-		page = core.DefaultPage
+		page = config.DefaultPage
 	}
 	if count == 0 {
-		count = core.DefaultCount
+		count = config.DefaultCount
 	}
 
 	offset := count * (page - 1)

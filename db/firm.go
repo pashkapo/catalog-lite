@@ -10,10 +10,10 @@ import (
 
 func (db *Database) GetFirms(page, count int, filter models.FirmFilter) ([]*models.Firm, error) {
 	if page == 0 {
-		page = core.DefaultPage
+		page = config.DefaultPage
 	}
 	if count == 0 {
-		count = core.DefaultCount
+		count = config.DefaultCount
 	}
 
 	offset := count * (page - 1)

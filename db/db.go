@@ -11,7 +11,7 @@ type Database struct {
 	*sql.DB
 }
 
-func New(config *core.Config) (*Database, error) {
+func New(config *config.Config) (*Database, error) {
 	databaseUrl := fmt.Sprintf(
 		"postgresql://%s:%s@%s/%s?sslmode=disable",
 		config.DBUser,
