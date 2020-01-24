@@ -34,8 +34,19 @@ func (db *Database) GetFirms(page, count int, filter *model.FirmFilter) ([]*mode
 	}
 
 	if filter.RubricId != 0 {
-		firmsQuery = firmsQuery.Join("firms_rubrics fr ON f.id = fr.firm_id").
-			Where(sq.Eq{"fr.rubric_id": filter.RubricId})
+		firmsQuery = firmsQuery.Join(fmt.Sprintf(`(
+			with recursive r as (
+				select id, parent_id, name, 1 as level
+				from rubrics
+				where id = %d
+				union
+				select rs.id, rs.parent_id, rs.name, r.level + 1 as level
+				from rubrics rs
+					join r on rs.parent_id = r.id
+			)
+			select *
+			from r
+				join firms_rubrics fr on r.id = fr.rubric_id) rr on rr.firm_id = f.id`, filter.RubricId))
 	}
 
 	if filter.InRadius.Radius != 0 {
@@ -49,7 +60,6 @@ func (db *Database) GetFirms(page, count int, filter *model.FirmFilter) ([]*mode
 	}
 
 	sql, args, err := firmsQuery.ToSql()
-	log.Info(sql)
 
 	rows, err := db.Query(sql, args...)
 	if err != nil {
@@ -163,7 +173,6 @@ func (db *Database) GetFirmRubrics(id uint) ([]*model.Rubric, error) {
 		return nil, err
 	}
 	defer rows.Close()
-
 
 	rubrics := make([]*model.Rubric, 0)
 	for rows.Next() {
