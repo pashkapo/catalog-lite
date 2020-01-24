@@ -1,4 +1,4 @@
-package models
+package model
 
 type Location struct {
 	Long float32 `json:"long"`

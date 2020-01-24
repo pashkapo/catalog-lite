@@ -1,4 +1,4 @@
-package models
+package model
 
 type Rubric struct {
 	Id   uint   `json:"id"`

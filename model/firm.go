@@ -1,4 +1,4 @@
-package models
+package model
 
 type Firm struct {
 	Id           uint      `json:"id"`

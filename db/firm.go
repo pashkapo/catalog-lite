@@ -4,11 +4,11 @@ import (
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/labstack/gommon/log"
-	"github.com/pashkapo/catalog-lite/core"
-	"github.com/pashkapo/catalog-lite/models"
+	"github.com/pashkapo/catalog-lite/config"
+	"github.com/pashkapo/catalog-lite/model"
 )
 
-func (db *Database) GetFirms(page, count int, filter models.FirmFilter) ([]*models.Firm, error) {
+func (db *Database) GetFirms(page, count int, filter *model.FirmFilter) ([]*model.Firm, error) {
 	if page == 0 {
 		page = config.DefaultPage
 	}
@@ -49,7 +49,6 @@ func (db *Database) GetFirms(page, count int, filter models.FirmFilter) ([]*mode
 	}
 
 	sql, args, err := firmsQuery.ToSql()
-
 	log.Info(sql)
 
 	rows, err := db.Query(sql, args...)
@@ -58,9 +57,9 @@ func (db *Database) GetFirms(page, count int, filter models.FirmFilter) ([]*mode
 	}
 	defer rows.Close()
 
-	firms := make([]*models.Firm, 0)
+	firms := make([]*model.Firm, 0)
 	for rows.Next() {
-		firm := new(models.Firm)
+		firm := new(model.Firm)
 		err := rows.Scan(
 			&firm.Id,
 			&firm.Name,
@@ -83,7 +82,7 @@ func (db *Database) GetFirms(page, count int, filter models.FirmFilter) ([]*mode
 	return firms, nil
 }
 
-func (db *Database) GetFirmById(id uint) (*models.Firm, error) {
+func (db *Database) GetFirmById(id uint) (*model.Firm, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	firmsQuery := psql.Select("f.id, f.name, b.id, b.country, b.city, b.street, b.house, b.location[0], b.location[1]").
 		From("firms f").
@@ -91,7 +90,7 @@ func (db *Database) GetFirmById(id uint) (*models.Firm, error) {
 		Where(sq.Eq{"f.id": id})
 	sql, args, err := firmsQuery.ToSql()
 
-	var firm models.Firm
+	var firm model.Firm
 
 	err = db.QueryRow(sql, args...).
 		Scan(
@@ -149,7 +148,7 @@ func (db *Database) GetFirmPhoneNumbers(id uint) ([]string, error) {
 	return phones, nil
 }
 
-func (db *Database) GetFirmRubrics(id uint) ([]*models.Rubric, error) {
+func (db *Database) GetFirmRubrics(id uint) ([]*model.Rubric, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	firmsQuery := psql.Select("r.id, r.name").
 		From("firms_rubrics fr").
@@ -157,17 +156,18 @@ func (db *Database) GetFirmRubrics(id uint) ([]*models.Rubric, error) {
 		Where(sq.Eq{"fr.firm_id": id})
 
 	sql, args, err := firmsQuery.ToSql()
+	log.Info(sql)
+
 	rows, err := db.Query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	log.Info(sql)
 
-	rubrics := make([]*models.Rubric, 0)
+	rubrics := make([]*model.Rubric, 0)
 	for rows.Next() {
-		rubric := new(models.Rubric)
+		rubric := new(model.Rubric)
 		err := rows.Scan(&rubric.Id, &rubric.Name)
 		if err != nil {
 			return nil, err

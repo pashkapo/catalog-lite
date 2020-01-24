@@ -2,9 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"github.com/labstack/gommon/log"
-	"github.com/pashkapo/catalog-lite/core"
+	"github.com/pashkapo/catalog-lite/config"
 )
 
 type Database struct {
@@ -22,11 +22,11 @@ func New(config *config.Config) (*Database, error) {
 
 	db, err := sql.Open("postgres", databaseUrl)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatalf("could not ping DB... %v", err)
+		return nil, errors.New(fmt.Sprintf("could not ping DB... %v", err))
 	}
 
 	return &Database{db}, nil

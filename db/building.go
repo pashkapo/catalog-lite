@@ -2,11 +2,11 @@ package db
 
 import (
 	sq "github.com/Masterminds/squirrel"
-	"github.com/pashkapo/catalog-lite/core"
-	"github.com/pashkapo/catalog-lite/models"
+	"github.com/pashkapo/catalog-lite/config"
+	"github.com/pashkapo/catalog-lite/model"
 )
 
-func (db *Database) GetBuildings(page, count int) ([]*models.Building, error) {
+func (db *Database) GetBuildings(page, count int) ([]*model.Building, error) {
 	if page == 0 {
 		page = config.DefaultPage
 	}
@@ -31,9 +31,9 @@ func (db *Database) GetBuildings(page, count int) ([]*models.Building, error) {
 	}
 	defer rows.Close()
 
-	buildings := make([]*models.Building, 0)
+	buildings := make([]*model.Building, 0)
 	for rows.Next() {
-		building := new(models.Building)
+		building := new(model.Building)
 		err := rows.Scan(&building.Id, &building.Country, &building.City, &building.Street, &building.House, &building.Location.Long, &building.Location.Lat)
 		if err != nil {
 			return nil, err
