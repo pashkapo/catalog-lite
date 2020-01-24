@@ -1,9 +1,7 @@
 package db
 
 import (
-	"fmt"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/labstack/gommon/log"
 	"github.com/pashkapo/catalog-lite/config"
 	"github.com/pashkapo/catalog-lite/model"
 )
@@ -34,32 +32,39 @@ func (db *Database) GetFirms(page, count int, filter *model.FirmFilter) ([]*mode
 	}
 
 	if filter.RubricId != 0 {
-		firmsQuery = firmsQuery.Join(fmt.Sprintf(`(
+		firmsQuery = firmsQuery.Join(`(
 			with recursive r as (
-				select id, parent_id, name, 1 as level
+				select id, parent_id
 				from rubrics
-				where id = %d
+				where id = ?
 				union
-				select rs.id, rs.parent_id, rs.name, r.level + 1 as level
+				select rs.id, rs.parent_id
 				from rubrics rs
 					join r on rs.parent_id = r.id
 			)
 			select *
 			from r
-				join firms_rubrics fr on r.id = fr.rubric_id) rr on rr.firm_id = f.id`, filter.RubricId))
+				join firms_rubrics fr on r.id = fr.rubric_id) rr on rr.firm_id = f.id`, filter.RubricId)
 	}
 
 	if filter.InRadius.Radius != 0 {
-		query := fmt.Sprintf(
-			"st_dwithin(location::geometry::geography, st_makepoint(%f, %f)::geography, %d)",
+		firmsQuery = firmsQuery.Where(
+			"st_dwithin(location::geometry::geography, st_makepoint(?, ?)::geography, ?)",
 			filter.InRadius.Point.Long,
 			filter.InRadius.Point.Lat,
 			filter.InRadius.Radius,
 		)
-		firmsQuery = firmsQuery.Where(query)
+	}
+
+	if filter.Search != "" {
+		firmsQuery = firmsQuery.Where("to_tsvector('english',name) @@ plainto_tsquery(?)", filter.Search)
 	}
 
 	sql, args, err := firmsQuery.ToSql()
+
+	//log.Info(filter.Search)
+	//log.Info(args)
+	//log.Info(sql)
 
 	rows, err := db.Query(sql, args...)
 	if err != nil {
@@ -166,7 +171,6 @@ func (db *Database) GetFirmRubrics(id uint) ([]*model.Rubric, error) {
 		Where(sq.Eq{"fr.firm_id": id})
 
 	sql, args, err := firmsQuery.ToSql()
-	log.Info(sql)
 
 	rows, err := db.Query(sql, args...)
 	if err != nil {

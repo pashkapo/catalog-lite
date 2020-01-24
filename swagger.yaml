@@ -134,6 +134,9 @@ components:
           example: 7
         in_radius:
           $ref: "#/components/schemas/InRadius"
+        search:
+          type: string
+          example: "Group"
     InRadius:
       type: object
       properties:

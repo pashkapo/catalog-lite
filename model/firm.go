@@ -15,4 +15,5 @@ type FirmFilter struct {
 		Radius uint     `json:"radius"`
 		Point  Location `json:"point"`
 	} `json:"in_radius"`
+	Search string `json:"search"`
 }
