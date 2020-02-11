@@ -31,7 +31,7 @@ func (db *Database) GetBuildings(page, count int) ([]*model.Building, error) {
 	}
 	defer rows.Close()
 
-	buildings := make([]*model.Building, 0)
+	buildings := make([]*model.Building, 0, count)
 	for rows.Next() {
 		building := new(model.Building)
 		err := rows.Scan(&building.Id, &building.Country, &building.City, &building.Street, &building.House, &building.Location.Long, &building.Location.Lat)

@@ -22,8 +22,11 @@ func main() {
 
 	e := echo.New()
 	e.Logger.SetLevel(log.ERROR)
-	e.Use(middleware.Logger())
+	//e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	g := e.Group("/api")
 	g.GET("/ping", h.Ping)

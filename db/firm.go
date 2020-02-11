@@ -62,17 +62,13 @@ func (db *Database) GetFirms(page, count int, filter *model.FirmFilter) ([]*mode
 
 	sql, args, err := firmsQuery.ToSql()
 
-	//log.Info(filter.Search)
-	//log.Info(args)
-	//log.Info(sql)
-
 	rows, err := db.Query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	firms := make([]*model.Firm, 0)
+	firms := make([]*model.Firm, 0, count)
 	for rows.Next() {
 		firm := new(model.Firm)
 		err := rows.Scan(
